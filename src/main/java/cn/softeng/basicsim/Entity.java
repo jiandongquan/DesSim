@@ -55,8 +55,13 @@ public class Entity {
         namedEntities = new HashMap<>(100);
     }
 
+    /**
+     * Paul：构造器
+     */
     public Entity() {
+        // 设置实体的唯一ID
         entityNumber = entityCount.incrementAndGet();
+        // 将实体加入到所有实体集合
         synchronized (allInstances) {
             allInstances.add(this);
         }
@@ -68,6 +73,7 @@ public class Entity {
      * 模型运行前初始化实体
      * 该方法中操作只能依赖于自身，这样才可以在任何序列中初始化每个实体
      * (相当于命令模式中的接收者，是真正执行命令操作的功能代码)
+     * Paul ：此方法会被子类进行重写，已实现每个组件自己的初始化功能；
      */
     public void earlyInit() {
         // 将实体的属性重置为初始值
@@ -75,8 +81,9 @@ public class Entity {
     }
 
     /**
-     * 初始化实体
+     * Paul：模型运行后初始化实体
      * (相当于命令模式中的接收者，是真正执行命令操作的功能代码)
+     * Paul：此方法会被子类进行重写，已实现每个子类自己的后初始化功能；
      */
     public void lateInit() {
 
@@ -85,6 +92,8 @@ public class Entity {
     /**
      * 启动该实体的模型运行
      * (相当于命令模式中的接收者，是真正执行命令操作的功能代码)
+     *
+     * Paul：此方法会被子类进行重写，已实现每个子类自己的启动功能
      */
     public void startUp() {
 
@@ -92,6 +101,8 @@ public class Entity {
 
     /**
      * 仿真运行结束后的一些操作，如生成报告
+     *
+     * Paul：此方法会被子类进行重庆，已实现每个子类自己的结束运行功能；
      */
     public void doEnd() {
 
@@ -100,10 +111,13 @@ public class Entity {
     /**
      * 获取当前仿真ticks(时刻)值
      * @return
+     *
+     * Paul：通过EventManager静态方法获取当前process的当前仿真时刻(Ticks)
      */
     public final long getSimTicks() {
         return EventManager.simTicks();
     }
+
 
     public final double getSimTime() {
         return EventManager.simSeconds();
