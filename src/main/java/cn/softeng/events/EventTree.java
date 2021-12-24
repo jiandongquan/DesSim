@@ -32,6 +32,7 @@ class EventTree {
      * @param n
      */
     private void pushScratch(EventNode n) {
+
         scratch[scratchPos++] = n;
     }
     /**
@@ -39,8 +40,10 @@ class EventTree {
      * @param n
      */
     private void dropScratch(int n) {
+
         scratchPos = Math.max(0, scratchPos - n);
     }
+
     /**
      * Get the 'nth' node from the end of the scratch (1 being the first)
      * 从scratch中，取出倒数第n个结点
@@ -48,6 +51,7 @@ class EventTree {
      * @return
      */
     private EventNode getScratch(int n) {
+
         return (scratchPos >= n) ? scratch[scratchPos - n] : null;
     }
     /**
@@ -91,7 +95,6 @@ class EventTree {
         while (current.left != EventNode.nilNode) {
             current = current.left;
         }
-
         lowest = current;
     }
 

@@ -23,5 +23,4 @@ public class EventHandle {
     public final boolean isScheduled(){
         return event != null;
     }
-
 }

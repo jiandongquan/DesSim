@@ -33,18 +33,27 @@ import java.util.ArrayList;
  * deadlock with other threads trying to wake you from the threadPool.
  *
  * Process 是Thread的子类，可以被离散事件仿真器进行管理
- * Process是startProcess和离散事件模型所需的所有功能的基础。每个进程创建自己运行的线程。这些线程由eventManager管理，当一个进程完成运行时，将被池化以便重用。
- * lock:进程中的所有状态必须在一个同步块内更新，使用进程本身作为锁对象。 在持有Process的锁时，一定要小心，千万不要使用eventManager的锁，因为这会导致其他线程试图从threadPool中唤醒你，从而导致死锁。
+ * Process是startProcess和离散事件模型所需的所有功能的基础。
+ * 每个Process创建自己运行的线程。这些线程由eventManager管理，
+ * 当一个Process运行完成时将被池化以便重用。
+ *
+ * Locking:
+ * Process中的所有状态必须使用Process本身作为锁对象在一个同步块内更新。
+ * 一定要小心，在持有Process锁时，千万不要获取（使用）eventManager的锁，因为这会导致其他线程试图从threadPool中唤醒你，从而导致死锁。
  *
  */
 final class Process extends Thread {
     // Properties required to manage the pool of available Processes
 
-    private static final ArrayList<Process> pool; // Paul: 所有Process的池，持有Process实例；
-    private static final int maxPoolSize = 100; // Paul: 池的最多Process数量
-    private static int numProcesses = 0; // Paul：已经生产的Process数量，同时用于为Process进行命名，
+    // Paul: 所有Process的池，持有Process实例；
+    private static final ArrayList<Process> pool;
+    // Paul: 池的最多Process数量
+    private static final int maxPoolSize = 100;
+    // Paul：已经生产的Process数量，同时用于为Process进行命名，
+    private static int numProcesses = 0;
+    // Paul：管理当前Processs的EventManager
+    private EventManager eventManager;
 
-    private EventManager eventManager; // Paul：管理当前Processs的EventManager
     /**
      * The Process from which the present process was created
      * This is related to how the startProcess() API is implemented,
@@ -140,6 +149,7 @@ final class Process extends Thread {
             // the internal of getProcess() calls Process.start(),
             // starts the thread, pauses in waitInPool(), and
             // then puts it in the pool for use
+            // 当前线程一直在线程池中等待被唤醒，直到线程被调用Process.wake()方法后（实际调用的是线程的Interrupted方法），继续往下执行；
             waitInPool();
 
             // Process has been woken up, execute the method we have been assigned
@@ -183,6 +193,7 @@ final class Process extends Thread {
             // Note: the try/while(true)/catch construct is needed to avoid
             // spurious wake ups allowed as of Java 5.  All legitimate wake
             // ups are done through the InterruptedException.
+            // 非常奇怪的写法：通过pool.wait() 让当前线程进入阻塞状态，然后通过调用当前线程的Interrupted方法唤醒线程；
             try {
                 while (true) { pool.wait(); }
             } catch (InterruptedException e) {}

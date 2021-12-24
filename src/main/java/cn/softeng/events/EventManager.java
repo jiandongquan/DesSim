@@ -554,6 +554,11 @@ public final class EventManager {
      * restorePreviousActiveThread()
      * Must hold the lockObject when calling this method.
      * 让当前线程等待，执行其后面的线程
+     *
+     * Paul:
+     * 暂停当前活动Process并重启当前Process内的NextProcess.
+     *
+     *
      */
     private void captureProcess(Process cur) {
         // if we don't wake a new process, take one from the pool
@@ -1177,6 +1182,7 @@ public final class EventManager {
     /**
      * Apppend EventData objects to the provided list for all pending events.
      * @param events List to append EventData objects to
+     * Paul： 向事件查看器提供一个EventNode内所有事件list
      */
     public final void getEventDataList(ArrayList<EventData> events) {
         // Unsynchronized for use by the Event Viewer
@@ -1184,6 +1190,10 @@ public final class EventManager {
         eventTree.runOnAllNodes(lb);
     }
 
+    /**
+     * Paul：实现EventNode.Runner接口，以便可以对EventNode进行遍历操作，获取所有事件信息
+     * 后，提供给事件查看器，被getEventDataList调用
+     */
     private static class EventDataBuilder implements EventNode.Runner {
         final ArrayList<EventData> eventDataList;
 
@@ -1204,6 +1214,9 @@ public final class EventManager {
         }
     }
 
+    /**
+     * Paul: 获取所有的条件事件列表；
+     */
     public final void getConditionalDataList(ArrayList<String> events) {
         for (ConditionalEvent cond : condEvents) {
             events.add(cond.target.getDescription());
