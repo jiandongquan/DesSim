@@ -422,7 +422,7 @@ public final class EventManager {
                 }
 
                 // Advance to the next event time
-                // 实时模式推进时间: 通过wait20ms（推进时间）, 然后continue，再来判断时间，
+                // 非常重要：实时模式推进时间: 通过wait20ms（推进时间）, 然后continue，再来判断时间，
                 if (executeRealTime) {
                     // Loop until the next event time is reached
                     long realTick = this.calcRealTimeTick();
